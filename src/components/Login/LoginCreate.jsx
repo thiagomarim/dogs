@@ -1,51 +1,47 @@
-export const API_URL = 'https://dogsapi.origamid.dev/json';
+import React from 'react';
+import Input from '../Forms/Input';
+import Button from '../Forms/Button';
+import Error from '../Helper/Error';
+import useForm from '../../Hooks/useForm';
+import { USER_POST } from '../../Api';
+import { UserContext } from '../../UserContext';
+import useFetch from '../../Hooks/useFetch';
 
-export function TOKEN_POST(body) {
-  return {
-    url: API_URL + '/jwt-auth/v1/token',
-    options: {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    },
-  };
-}
+const LoginCreate = () => {
+  const username = useForm();
+  const email = useForm('email');
+  const password = useForm();
 
-export function TOKEN_VALIDATE_POST(token) {
-  return {
-    url: API_URL + '/jwt-auth/v1/token/validate',
-    options: {
-      method: 'POST',
-      headers: {
-        Authorization: 'Bearer ' + token,
-      },
-    },
-  };
-}
+  const { userLogin } = React.useContext(UserContext);
+  const { loading, error, request } = useFetch();
 
-export function USER_GET(token) {
-  return {
-    url: API_URL + '/api/user',
-    options: {
-      method: 'GET',
-      headers: {
-        Authorization: 'Bearer ' + token,
-      },
-    },
-  };
-}
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const { url, options } = USER_POST({
+      username: username.value,
+      email: email.value,
+      password: password.value,
+    });
+    const { response } = await request(url, options);
+    if (response.ok) userLogin(username.value, password.value);
+  }
 
-export function USER_POST(body) {
-  return {
-    url: API_URL + '/api/user',
-    options: {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    },
-  };
-}
+  return (
+    <section className="animeLeft">
+      <h1 className="title">Cadastre-se</h1>
+      <form onSubmit={handleSubmit}>
+        <Input label="Usuário" type="text" name="username" {...username} />
+        <Input label="Email" type="email" name="email" {...email} />
+        <Input label="Senha" type="password" name="password" {...password} />
+        {loading ? (
+          <Button disabled>Cadastrando...</Button>
+        ) : (
+          <Button>Cadastrar</Button>
+        )}
+        <Error error={error} />
+      </form>
+    </section>
+  );
+};
+
+export default LoginCreate;
