@@ -25,7 +25,7 @@ cd dogs
 Execute esse comando para instalar as dependências.
 
 ```bash
-yarn install
+npm install
 
-yarn start
+npm start
 ```
